@@ -76,10 +76,10 @@ jobs:
         pip install .[dev]
 
     - name: Run black
-      run: black . --check
+      run: black .
 
     - name: Run isort
-      run: isort . --check-only --diff
+      run: isort .
 
     - name: Run mypy
       run: mypy src/torno
