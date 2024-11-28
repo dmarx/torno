@@ -1,14 +1,17 @@
 # tests/conftest.py
 """Test fixtures for Torno"""
 
+
 import pytest
 
-from datetime import datetime
 from torno.core import (
-    Schema, EnrichmentVersion, EnrichmentDefinition,
-    EnrichmentVersionConfig
+    EnrichmentDefinition,
+    EnrichmentVersion,
+    EnrichmentVersionConfig,
+    Schema,
 )
-from torno.store import FeatureStore, EnrichmentRegistration
+from torno.store import FeatureStore
+
 
 @pytest.fixture
 def basic_schema():
@@ -17,7 +20,7 @@ def basic_schema():
         required=["text"],
         validators={
             "length": lambda x: x > 0  # Now returns False for negative numbers
-        }
+        },
     )
 
 
