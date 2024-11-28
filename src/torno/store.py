@@ -5,8 +5,17 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 from .core import (
     EnrichmentDefinition, EnrichmentVersion, EnrichmentJob,
-    FeatureSet, Schema, JobStatus
+    FeatureSet, Schema, JobStatus, EnrichmentVersionConfig
 )
+
+
+@dataclass
+class EnrichmentRegistration:
+    """Data for registering a new enrichment"""
+    name: str
+    description: str
+    metadata: Optional[Dict[str, Any]] = None
+
 
 class FeatureStore:
     """Main interface for the Torno feature store"""
@@ -17,39 +26,29 @@ class FeatureStore:
         self.features: Dict[str, FeatureSet] = {}
 
     def register_enrichment(
-        self, name: str, description: str, 
-        metadata: Optional[Dict[str, Any]] = None
+        self, registration: EnrichmentRegistration
     ) -> EnrichmentDefinition:
         """Register a new enrichment definition"""
-        if name in self.enrichments:
-            raise ValueError(f"Enrichment {name} already exists")
+        if registration.name in self.enrichments:
+            raise ValueError(f"Enrichment {registration.name} already exists")
             
         enrichment = EnrichmentDefinition(
-            name=name,
-            description=description,
-            metadata=metadata or {}
+            name=registration.name,
+            description=registration.description,
+            metadata=registration.metadata or {}
         )
-        self.enrichments[name] = enrichment
+        self.enrichments[registration.name] = enrichment
         return enrichment
 
     def create_version(
-        self, enrichment_name: str, prompt: str, model: str,
-        params: Dict[str, Any], input_schema: Schema,
-        output_schema: Schema, metadata: Optional[Dict[str, Any]] = None
+        self, enrichment_name: str,
+        config: EnrichmentVersionConfig
     ) -> EnrichmentVersion:
         """Create a new version of an enrichment"""
         if enrichment_name not in self.enrichments:
             raise ValueError(f"Enrichment {enrichment_name} not found")
             
-        version = EnrichmentVersion.create(
-            prompt=prompt,
-            model=model,
-            params=params,
-            input_schema=input_schema,
-            output_schema=output_schema,
-            metadata=metadata
-        )
-        
+        version = EnrichmentVersion.create(config)
         self.enrichments[enrichment_name].add_version(version)
         return version
 
