@@ -1,7 +1,6 @@
 # tests/conftest.py
 """Test fixtures for Torno"""
 
-
 import pytest
 
 from torno.core import (
