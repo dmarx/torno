@@ -3,21 +3,21 @@
 
 import pytest
 
+from datetime import datetime
 from torno.core import (
-    EnrichmentDefinition,
-    EnrichmentVersion,
-    EnrichmentVersionConfig,
-    Schema,
+    Schema, EnrichmentVersion, EnrichmentDefinition,
+    EnrichmentVersionConfig
 )
-from torno.store import FeatureStore
-
+from torno.store import FeatureStore, EnrichmentRegistration
 
 @pytest.fixture
 def basic_schema():
     return Schema(
         fields={"text": "str", "length": "int"},
         required=["text"],
-        validators={"length": lambda x: x > 0 if x is not None else True},
+        validators={
+            "length": lambda x: x > 0  # Now returns False for negative numbers
+        }
     )
 
 
