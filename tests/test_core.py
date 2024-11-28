@@ -1,12 +1,17 @@
 # tests/test_core.py
 """Tests for core Torno functionality"""
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from torno.core import (
-    EnrichmentStatus, Schema, EnrichmentVersion,
-    EnrichmentDefinition, EnrichmentVersionConfig
+    EnrichmentDefinition,
+    EnrichmentStatus,
+    EnrichmentVersion,
+    EnrichmentVersionConfig,
 )
+
 
 class TestSchema:
     def test_valid_data(self, basic_schema):
@@ -28,6 +33,7 @@ class TestSchema:
         with pytest.raises(ValueError):
             basic_schema.validate(data)
 
+
 class TestEnrichmentVersion:
     def test_create_version(self, basic_schema):
         config = EnrichmentVersionConfig(
@@ -35,7 +41,7 @@ class TestEnrichmentVersion:
             model="test-model",
             params={},
             input_schema=basic_schema,
-            output_schema=basic_schema
+            output_schema=basic_schema,
         )
         version = EnrichmentVersion.create(config)
         assert version.version_id is not None
@@ -48,36 +54,28 @@ class TestEnrichmentVersion:
             model="test-model",
             params={},
             input_schema=basic_schema,
-            output_schema=basic_schema
+            output_schema=basic_schema,
         )
         version1 = EnrichmentVersion.create(config)
         version2 = EnrichmentVersion.create(config)
         assert version1.version_id == version2.version_id
 
+
 class TestEnrichmentDefinition:
     def test_add_version(self, sample_version):
-        enrichment = EnrichmentDefinition(
-            name="test",
-            description="test enrichment"
-        )
+        enrichment = EnrichmentDefinition(name="test", description="test enrichment")
         enrichment.add_version(sample_version)
         assert len(enrichment.versions) == 1
         assert enrichment.get_latest_version() == sample_version
 
     def test_get_version(self, sample_version):
-        enrichment = EnrichmentDefinition(
-            name="test",
-            description="test enrichment"
-        )
+        enrichment = EnrichmentDefinition(name="test", description="test enrichment")
         enrichment.add_version(sample_version)
         assert enrichment.get_version(sample_version.version_id) == sample_version
         assert enrichment.get_version("nonexistent") is None
 
     def test_status_transitions(self):
-        enrichment = EnrichmentDefinition(
-            name="test",
-            description="test enrichment"
-        )
+        enrichment = EnrichmentDefinition(name="test", description="test enrichment")
         assert enrichment.status == EnrichmentStatus.DRAFT
         enrichment.status = EnrichmentStatus.PUBLISHED
         assert enrichment.status == EnrichmentStatus.PUBLISHED
