@@ -33,9 +33,9 @@ class Schema:
     def validate(self, data: Dict[str, Any]) -> bool:
         """Validate data against schema"""
         # Check required fields
-        for field in self.required:
-            if field not in data:
-                raise ValueError(f"Missing required field: {field}")
+        for required_field in self.required:
+            if required_field not in data:
+                raise ValueError(f"Missing required field: {required_field}")
         
         # Validate types and custom validators
         for field_name, value in data.items():
@@ -52,6 +52,16 @@ class Schema:
         return True
 
 @dataclass
+class EnrichmentVersionConfig:
+    """Configuration for an enrichment version"""
+    prompt: str
+    model: str
+    params: Dict[str, Any]
+    input_schema: Schema
+    output_schema: Schema
+    metadata: Optional[Dict[str, Any]] = None
+
+@dataclass
 class EnrichmentVersion:
     """Version of an enrichment definition"""
     version_id: str
@@ -64,17 +74,15 @@ class EnrichmentVersion:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def create(cls, prompt: str, model: str, params: Dict[str, Any],
-               input_schema: Schema, output_schema: Schema,
-               metadata: Optional[Dict[str, Any]] = None) -> 'EnrichmentVersion':
+    def create(cls, config: EnrichmentVersionConfig) -> 'EnrichmentVersion':
         """Create a new enrichment version with a unique ID"""
         version_data = {
-            "prompt": prompt,
-            "model": model,
-            "params": params,
-            "input_schema": input_schema.fields,
-            "output_schema": output_schema.fields,
-            "metadata": metadata or {},
+            "prompt": config.prompt,
+            "model": config.model,
+            "params": config.params,
+            "input_schema": config.input_schema.fields,
+            "output_schema": config.output_schema.fields,
+            "metadata": config.metadata or {},
             "created_at": datetime.utcnow().isoformat()
         }
         
@@ -85,12 +93,12 @@ class EnrichmentVersion:
         return cls(
             version_id=version_id,
             created_at=datetime.utcnow(),
-            prompt_template=prompt,
-            model_id=model,
-            parameters=params,
-            input_schema=input_schema,
-            output_schema=output_schema,
-            metadata=metadata or {}
+            prompt_template=config.prompt,
+            model_id=config.model,
+            parameters=config.params,
+            input_schema=config.input_schema,
+            output_schema=config.output_schema,
+            metadata=config.metadata or {}
         )
 
 @dataclass
