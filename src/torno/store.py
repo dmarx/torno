@@ -2,6 +2,7 @@
 """torno/store.py - Main feature store implementation"""
 
 from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
 from datetime import datetime
 from .core import (
     EnrichmentDefinition, EnrichmentVersion, EnrichmentJob,
